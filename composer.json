@@ -1,0 +1,23 @@
+{
+    "name": "karelwintersky/ajur.weather",
+    "description": "AJUR Media Steamboat Weather toolkit",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Karel Wintersky",
+            "email": "karel.wintersky@yandex.ru"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "ext-json": "*",
+        "monolog/monolog": "^1.25.3",
+        "cmfcmf/openweathermap-php-api": "^2.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "AJUR\\Toolkit\\": ["interfaces", "sources"]
+        }
+    }
+}
