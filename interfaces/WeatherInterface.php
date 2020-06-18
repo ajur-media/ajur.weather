@@ -12,7 +12,7 @@ interface WeatherInterface
 
     public static function makeWeatherInfo($id, CurrentWeather $weather):array;
 
-    public static function fetchWeatherGroup(array $region_ids_list):array;
+    public static function fetchWeatherGroup(array $regions_list):array;
 
-    public static function fetchWeatherGroupDebug(array $region_ids_list):array;
+    public static function fetchWeatherGroupDebug(array $regions_list):array;
 }

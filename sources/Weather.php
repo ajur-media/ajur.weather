@@ -215,20 +215,22 @@ class Weather implements WeatherInterface, WeatherConstants
     }
 
     /**
-     * Загружает из OpenWeather погоду для переданного массива регионов (идентификаторы в формате OpenWeatherMap)
+     * Загружает из OpenWeather погоду для переданного массива регионов
      *
-     * @param array $region_ids_list
+     * @param array $regions_list - либо список регионов (многомерный массив), либо список ключей регионов (array_keys)
      * @return array
      * @throws OpenWeatherMap\Exception
      */
-    public static function fetchWeatherGroup(array $region_ids_list):array
+    public static function fetchWeatherGroup(array $regions_list):array
     {
         $final_weather = [];
+        // make IDS list: keys of region list
+        $regions_ids_list = (self::arrayDepth($regions_list) > 1) ? array_keys($regions_list) : $regions_list;
 
-        self::$logger->notice('[FETCH] weather for regions ids: ', $region_ids_list);
+        self::$logger->notice('[FETCH] weather for regions ids: ', $regions_list);
 
         // get weather for set of items
-        $all_regions_weather = self::$owm->getWeatherGroup($region_ids_list, self::$options['units'], self::$options['lang']);
+        $all_regions_weather = self::$owm->getWeatherGroup($regions_ids_list, self::$options['units'], self::$options['lang']);
 
         // create iterator from returned object
         $all_regions_weather = new IteratorIterator($all_regions_weather);
@@ -250,16 +252,19 @@ class Weather implements WeatherInterface, WeatherConstants
 
     /**
      * DEBUG Method
-     * @param array $region_ids_list
+     * @param array $regions_list
      * @return array
      * @throws OpenWeatherMap\Exception
      */
-    public static function fetchWeatherGroupDebug(array $region_ids_list): array
+    public static function fetchWeatherGroupDebug(array $regions_list): array
     {
         $final_weather = [];
+        if (self::arrayDepth($regions_list) == 1) {
+            echo "Can't iterate flat regions list." . PHP_EOL;
+            return [];
+        }
 
-        foreach ($region_ids_list as $id) {
-            $region_info = self::outer_regions [ $id ];
+        foreach ($regions_list as $id => $region_info) {
 
             echo "Retrieving data for region {$region_info['geoname_ru']} ... ";
             self::$logger->notice("[GET] data for region {$region_info['geoname_ru']} ... ");
@@ -291,6 +296,18 @@ class Weather implements WeatherInterface, WeatherConstants
             if ( $v === true ) return $item;
         }
         return null;
+    }
+
+    private static function arrayDepth($array, $level = 0) {
+
+        if (!$array) return 0;
+
+        $current = current($array);
+        $level++;
+
+        if ( !is_array($current) ) return $level;
+
+        return self::arrayDepth($current, $level);
     }
 
 

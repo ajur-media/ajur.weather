@@ -56,7 +56,7 @@ interface WeatherConstants
     const map_intid_to_owmid = [
         // субрайоны Санкт-Петербурга
         self::REGION_SPB =>  [
-            0   => 536203,
+            0   => 536203,              // Условно Санкт-Петербург (на самом деле - центр)
         ],
         // регионы ленобласти (внутренний ID на сайте 47news.ru => код региона OWM)
         self::REGION_LO =>  [
