@@ -9,8 +9,8 @@ use ReflectionClass;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-use Cmfcmf\OpenWeatherMap;
-use Cmfcmf\OpenWeatherMap\CurrentWeather;
+use AJUR\OpenWeatherMap;
+use AJUR\OpenWeatherMap\CurrentWeather;
 
 class Weather implements WeatherInterface, WeatherConstants
 {

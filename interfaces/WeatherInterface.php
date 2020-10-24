@@ -2,7 +2,9 @@
 
 namespace AJUR\Toolkit;
 
-use Cmfcmf\OpenWeatherMap\CurrentWeather;
+use AJUR\OpenWeatherMap;
+use AJUR\OpenWeatherMap\CurrentWeather;
+
 use Psr\Log\LoggerInterface;
 
 interface WeatherInterface
