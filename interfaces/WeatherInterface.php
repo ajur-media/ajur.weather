@@ -3,10 +3,11 @@
 namespace AJUR\Toolkit;
 
 use Cmfcmf\OpenWeatherMap\CurrentWeather;
+use Psr\Log\LoggerInterface;
 
 interface WeatherInterface
 {
-    public static function init($options = [], $logger = null);
+    public static function init(string $api_key = null, array $options = [], LoggerInterface $logger = null);
 
     public static function loadLocalWeather($district_id = 0, $source_file = null);
 
@@ -16,3 +17,4 @@ interface WeatherInterface
 
     public static function fetchWeatherGroupDebug(array $regions_list):array;
 }
+# -eof-

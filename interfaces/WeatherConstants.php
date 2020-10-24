@@ -283,6 +283,6 @@ interface WeatherConstants
         '50d'   =>  '22d',
         '50n'   =>  '22n',
     ];
-
-
+    
 }
+# -eof-

@@ -6,8 +6,8 @@ use Exception;
 use IteratorIterator;
 use ReflectionClass;
 
-use Monolog\Logger;
-use Monolog\Handler\NullHandler;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 use Cmfcmf\OpenWeatherMap;
 use Cmfcmf\OpenWeatherMap\CurrentWeather;
@@ -25,7 +25,7 @@ class Weather implements WeatherInterface, WeatherConstants
     private static $owm;
 
     /**
-     * @var Logger|null
+     * @var LoggerInterface|null
      */
     private static $logger;
 
@@ -36,16 +36,16 @@ class Weather implements WeatherInterface, WeatherConstants
         'units'     =>  'metric',
         'lang'      =>  'ru'
     ];
-
+    
     /**
      * Инициализация требуется для загрузки погоды
      *
-     * @param null $api_key -- API-ключ для доступа к OpenWeather
+     * @param string $api_key -- API-ключ для доступа к OpenWeather
      * @param array $options -- 2 опции: units:metric|imperial, lang:ru|en|..
-     * @param null $logger -- null или Logger
+     * @param LoggerInterface $logger -- null или Logger
      * @throws Exception
      */
-    public static function init($api_key = null, $options = [], $logger = null)
+    public static function init(string $api_key = null, array $options = [], LoggerInterface $logger = null)
     {
         if (!is_null($api_key)) {
             self::$API_KEY = $api_key;
@@ -54,11 +54,11 @@ class Weather implements WeatherInterface, WeatherConstants
 
         self::$options['units'] = $options['units'] ?? 'metric';
         self::$options['lang'] = $options['lang'] ?? 'ru';
-
+    
         self::$logger
-            = $logger instanceof Logger
+            = $logger instanceof LoggerInterface
             ? $logger
-            : (new Logger('null'))->pushHandler(new NullHandler());
+            : new NullLogger();
     }
 
     /**
@@ -132,13 +132,11 @@ class Weather implements WeatherInterface, WeatherConstants
             return $local_weather;
 
         } catch (Exception $e) {
-            if (self::$logger instanceof Logger) {
                 self::$logger->error('[ERROR] Load Weather ',
                     [
                         array_search($e->getCode(), (new ReflectionClass(__CLASS__))->getConstants()),
                         $e->getMessage()
                     ]);
-            }
         }
 
         return $current_weather;
@@ -310,5 +308,6 @@ class Weather implements WeatherInterface, WeatherConstants
         return self::arrayDepth($current, $level);
     }
 
-
 }
+
+# -eof-

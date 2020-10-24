@@ -12,8 +12,8 @@
     "require": {
         "php": "^7.2",
         "ext-json": "*",
-        "monolog/monolog": "^1.25.3",
-        "cmfcmf/openweathermap-php-api": "^2.4"
+        "cmfcmf/openweathermap-php-api": "^2.4",
+        "psr/log": "^1.1"
     },
     "autoload": {
         "psr-4": {
