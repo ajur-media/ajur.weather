@@ -1,5 +1,5 @@
 {
-    "name": "karelwintersky/ajur.weather",
+    "name": "ajur-media/ajur.weather",
     "description": "AJUR Media Steamboat Weather toolkit",
     "type": "library",
     "license": "MIT",
@@ -19,5 +19,9 @@
         "psr-4": {
             "AJUR\\Toolkit\\": ["interfaces", "sources"]
         }
+    },
+    "support": {
+        "source": "https://github.com/ajur-media/ajur.weather",
+        "issues": "https://github.com/ajur-media/ajur.weather/issues"
     }
 }
