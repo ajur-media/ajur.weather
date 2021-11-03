@@ -11,6 +11,7 @@ use Psr\Log\NullLogger;
 
 use AJUR\OpenWeatherMap;
 use AJUR\OpenWeatherMap\CurrentWeather;
+use RuntimeException;
 
 class Weather implements WeatherInterface, WeatherConstants
 {
@@ -22,7 +23,7 @@ class Weather implements WeatherInterface, WeatherConstants
     /**
      * @var OpenWeatherMap
      */
-    private static $owm;
+    public static $owm;
 
     /**
      * @var LoggerInterface|null
@@ -74,23 +75,28 @@ class Weather implements WeatherInterface, WeatherConstants
         $current_weather = [];
 
         try {
-            if (is_null($source_file))
-                throw new Exception("Weather file not defined", self::ERROR_SOURCE_FILE_NOT_DEFINED);
+            if (is_null($source_file)) {
+                throw new RuntimeException("Weather file not defined", self::ERROR_SOURCE_FILE_NOT_DEFINED);
+            }
 
-            if (!is_readable($source_file))
-                throw new Exception("Weather file `{$source_file}` not found", self::ERROR_SOURCE_FILE_NOT_READABLE);
+            if (!is_readable($source_file)) {
+                throw new RuntimeException("Weather file `{$source_file}` not found", self::ERROR_SOURCE_FILE_NOT_READABLE);
+            }
 
             $file_content = \file_get_contents($source_file);
-            if ($file_content === FALSE)
-                throw new Exception("Error reading weather file `{$source_file}`", self::ERROR_SOURCE_FILE_READING_ERROR);
+            if ($file_content === FALSE) {
+                throw new RuntimeException("Error reading weather file `{$source_file}`", self::ERROR_SOURCE_FILE_READING_ERROR);
+            }
 
             $file_content = \json_decode($file_content, true);
 
-            if (($file_content === NULL) || !\is_array($file_content))
-                throw new Exception("Weather data can't be parsed", self::ERROR_SOURCE_FILE_PARSING_ERROR);
+            if (($file_content === NULL) || !\is_array($file_content)) {
+                throw new RuntimeException("Weather data can't be parsed", self::ERROR_SOURCE_FILE_PARSING_ERROR);
+            }
 
-            if (!\array_key_exists('data', $file_content))
-                throw new Exception("Weather file does not contain DATA section", self::ERROR_SOURCE_FILE_HAVE_NO_DATA);
+            if (!\array_key_exists('data', $file_content)) {
+                throw new RuntimeException("Weather file does not contain DATA section", self::ERROR_SOURCE_FILE_HAVE_NO_DATA);
+            }
 
             $current_weather = $file_content['data'];
 
@@ -104,8 +110,9 @@ class Weather implements WeatherInterface, WeatherConstants
 
             // проверим, есть ли такой идентификатор района вообще в массиве кодов районов.
             // Если нет - кидаем исключение (записываем ошибку), но возвращаем массив со случайной погодой
-            if (!array_key_exists($district_id, self::map_intid_to_owmid[ self::REGION_LO ]))
-                throw new Exception("Given district id ({$district_id}) does not exist in MAP_INTID_TO_OWMID set", self::ERROR_NO_SUCH_DISTRICT_ID);
+            if (!\array_key_exists($district_id, self::map_intid_to_owmid[ self::REGION_LO ])) {
+                throw new RuntimeException("Given district id ({$district_id}) does not exist in MAP_INTID_TO_OWMID set", self::ERROR_NO_SUCH_DISTRICT_ID);
+            }
 
             /**
              * array_search_callback() аналогичен array_search() , только помогает искать по неодномерному массиву.
@@ -131,12 +138,12 @@ class Weather implements WeatherInterface, WeatherConstants
 
             return $local_weather;
 
-        } catch (Exception $e) {
-                self::$logger->error('[ERROR] Load Weather ',
-                    [
-                        array_search($e->getCode(), (new ReflectionClass(__CLASS__))->getConstants()),
-                        $e->getMessage()
-                    ]);
+        } catch (RuntimeException $e) {
+            self::$logger->error('[ERROR] Load Weather ',
+                [
+                    array_search($e->getCode(), (new ReflectionClass(__CLASS__))->getConstants(), true),
+                    $e->getMessage()
+                ]);
         }
 
         return $current_weather;
@@ -176,15 +183,18 @@ class Weather implements WeatherInterface, WeatherConstants
             $dataset['t'] = round($dataset['temperature'], 0);
         }
 
-        if ($weather->humidity)
+        if ($weather->humidity) {
             $dataset['humidity'] = $weather->humidity->getFormatted();
+        }
 
         if ($weather->pressure) {
             $dataset['pressure_hpa'] = $weather->pressure->getValue();
             $dataset['pressure_mm'] = round($dataset['pressure_hpa'] * 0.75006375541921, 0);
         }
-        if ($weather->wind->speed)
+
+        if ($weather->wind->speed) {
             $dataset['wind_speed'] = $weather->wind->speed->getValue();
+        }
 
         if ($weather->wind->direction) {
             $dataset['wind_speed'] = $weather->wind->speed->getValue();
@@ -197,8 +207,9 @@ class Weather implements WeatherInterface, WeatherConstants
             $dataset['clouds_text'] = $weather->clouds->getDescription();
         }
 
-        if ($weather->precipitation)
+        if ($weather->precipitation) {
             $dataset['precipitation'] = $weather->precipitation->getValue();
+        }
 
         if ($weather->weather) {
             $dataset['weather_icon'] = $weather->weather->icon;
@@ -291,19 +302,25 @@ class Weather implements WeatherInterface, WeatherConstants
     {
         foreach ($a as $item) {
             $v = \call_user_func($callback, $item);
-            if ( $v === true ) return $item;
+            if ( $v === true ) {
+                return $item;
+            }
         }
         return null;
     }
 
-    private static function arrayDepth($array, $level = 0) {
-
-        if (!$array) return 0;
+    private static function arrayDepth($array, $level = 0)
+    {
+        if (!$array) {
+            return 0;
+        }
 
         $current = current($array);
         $level++;
 
-        if ( !is_array($current) ) return $level;
+        if ( !is_array($current) ) {
+            return $level;
+        }
 
         return self::arrayDepth($current, $level);
     }
