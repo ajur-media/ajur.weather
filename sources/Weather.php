@@ -37,25 +37,25 @@ class Weather implements WeatherInterface, WeatherConstants
         'units'     =>  'metric',
         'lang'      =>  'ru'
     ];
-    
+
     /**
      * Инициализация требуется для загрузки погоды
      *
-     * @param string $api_key -- API-ключ для доступа к OpenWeather
+     * @param string|null $api_key -- API-ключ для доступа к OpenWeather
      * @param array $options -- 2 опции: units:metric|imperial, lang:ru|en|..
-     * @param LoggerInterface $logger -- null или Logger
+     * @param LoggerInterface|null $logger -- null или Logger
      * @throws Exception
      */
-    public static function init(string $api_key = null, array $options = [], LoggerInterface $logger = null)
+    public static function init(string $api_key = '', array $options = [], LoggerInterface $logger = null)
     {
-        if (!is_null($api_key)) {
+        if (!empty($api_key)) {
             self::$API_KEY = $api_key;
             self::$owm = new OpenWeatherMap($api_key);
         }
 
         self::$options['units'] = $options['units'] ?? 'metric';
         self::$options['lang'] = $options['lang'] ?? 'ru';
-    
+
         self::$logger
             = $logger instanceof LoggerInterface
             ? $logger
@@ -70,7 +70,7 @@ class Weather implements WeatherInterface, WeatherConstants
      * @param null $source_file
      * @return array
      */
-    public static function loadLocalWeather($district_id = 0, $source_file = null)
+    public static function loadLocalWeather(int $district_id = 0, $source_file = null): array
     {
         $current_weather = [];
 
@@ -88,17 +88,17 @@ class Weather implements WeatherInterface, WeatherConstants
                 throw new RuntimeException("Error reading weather file `{$source_file}`", self::ERROR_SOURCE_FILE_READING_ERROR);
             }
 
-            $file_content = \json_decode($file_content, true);
+            $file_content_json = \json_decode($file_content, true);
 
-            if (($file_content === NULL) || !\is_array($file_content)) {
+            if (!\is_array($file_content_json)) {
                 throw new RuntimeException("Weather data can't be parsed", self::ERROR_SOURCE_FILE_PARSING_ERROR);
             }
 
-            if (!\array_key_exists('data', $file_content)) {
+            if (!\array_key_exists('data', $file_content_json)) {
                 throw new RuntimeException("Weather file does not contain DATA section", self::ERROR_SOURCE_FILE_HAVE_NO_DATA);
             }
 
-            $current_weather = $file_content['data'];
+            $current_weather = $file_content_json['data'];
 
             // Район - 0 (все) ?
             if ($district_id === 0) {
@@ -108,7 +108,7 @@ class Weather implements WeatherInterface, WeatherConstants
 
             // Район не равен нулю, нужно построить массив с погодой для указанного района и ближайших:
 
-            // проверим, есть ли такой идентификатор района вообще в массиве кодов районов.
+            // Проверим, есть ли такой идентификатор района вообще в массиве кодов районов.
             // Если нет - кидаем исключение (записываем ошибку), но возвращаем массив со случайной погодой
             if (!\array_key_exists($district_id, self::map_intid_to_owmid[ self::REGION_LO ])) {
                 throw new RuntimeException("Given district id ({$district_id}) does not exist in MAP_INTID_TO_OWMID set", self::ERROR_NO_SUCH_DISTRICT_ID);
@@ -141,7 +141,7 @@ class Weather implements WeatherInterface, WeatherConstants
         } catch (RuntimeException $e) {
             self::$logger->error('[ERROR] Load Weather ',
                 [
-                    array_search($e->getCode(), (new ReflectionClass(__CLASS__))->getConstants(), true),
+                    array_search($e->getCode(), (new ReflectionClass(self::class))->getConstants(), true),
                     $e->getMessage()
                 ]);
         }
@@ -233,6 +233,7 @@ class Weather implements WeatherInterface, WeatherConstants
     public static function fetchWeatherGroup(array $regions_list):array
     {
         $final_weather = [];
+
         // make IDS list: keys of region list
         $regions_ids_list = (self::arrayDepth($regions_list) > 1) ? array_keys($regions_list) : $regions_list;
 
@@ -293,6 +294,7 @@ class Weather implements WeatherInterface, WeatherConstants
 
     /**
      * array_search_callback() аналогичен array_search() , только помогает искать по неодномерному массиву.
+     * Копия из Arris.Helpers
      *
      * @param array $a
      * @param callable $callback
@@ -309,7 +311,14 @@ class Weather implements WeatherInterface, WeatherConstants
         return null;
     }
 
-    private static function arrayDepth($array, $level = 0)
+    /**
+     * копия из Arris.Helpers
+     *
+     * @param $array
+     * @param int $level
+     * @return int|mixed
+     */
+    private static function arrayDepth($array, int $level = 0)
     {
         if (!$array) {
             return 0;

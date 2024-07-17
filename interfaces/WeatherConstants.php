@@ -7,18 +7,18 @@ interface WeatherConstants
     /**
      * Error consts
      */
-    const ERROR_SOURCE_FILE_NOT_DEFINED = 1;
-    const ERROR_SOURCE_FILE_NOT_READABLE = 2;
-    const ERROR_SOURCE_FILE_PARSING_ERROR = 3;
-    const ERROR_SOURCE_FILE_HAVE_NO_DATA = 4;
-    const ERROR_NO_SUCH_DISTRICT_ID = 5;
-    const ERROR_SOURCE_FILE_READING_ERROR = 6;
+    public const ERROR_SOURCE_FILE_NOT_DEFINED = 1;
+    public const ERROR_SOURCE_FILE_NOT_READABLE = 2;
+    public const ERROR_SOURCE_FILE_PARSING_ERROR = 3;
+    public const ERROR_SOURCE_FILE_HAVE_NO_DATA = 4;
+    public const ERROR_NO_SUCH_DISTRICT_ID = 5;
+    public const ERROR_SOURCE_FILE_READING_ERROR = 6;
 
     /**
      * Константы регионов
      */
-    const REGION_SPB    = 812;
-    const REGION_LO     = 813;
+    public const REGION_SPB    = 812;
+    public const REGION_LO     = 813;
 
     /**
      * список смежности регионов леобласти
@@ -26,7 +26,7 @@ interface WeatherConstants
      * Ключ - внутренний идентификатор региона на сайте 47news.ru (0 - регион не выбран, СПб)
      * Значение - массив смежных регионов
      */
-    const lo_adjacency_lists = [
+    public const lo_adjacency_lists = [
         1   =>  [ 13, 4, 15, 6 ],
         2   =>  [ 14, 16, 7, 8  ],
         3   =>  [ 11, 16, 7, 12 ],
@@ -53,7 +53,7 @@ interface WeatherConstants
      * Ключ: внутренний код на сайте
      * Значение: OWM ID
      */
-    const map_intid_to_owmid = [
+    public const map_intid_to_owmid = [
         // субрайоны Санкт-Петербурга
         self::REGION_SPB =>  [
             0   => 536203,              // Условно Санкт-Петербург (на самом деле - центр)
@@ -90,7 +90,7 @@ interface WeatherConstants
      * lat
      * group_code   -- какой группе принадлежит регион (используется телефонный код)
      */
-    const outer_regions = [
+    public const outer_regions = [
         536203 => [
             'owm_id' => 536203,
             'geoname_en' => 'Sankt-Peterburg',
@@ -246,7 +246,7 @@ interface WeatherConstants
         ],
     ];
 
-    const icons_conversion = [
+    public const icons_conversion = [
         // clear sky - чистое небо
         '01d'   =>  '31d',
         '01n'   =>  '31n',
@@ -283,6 +283,6 @@ interface WeatherConstants
         '50d'   =>  '22d',
         '50n'   =>  '22n',
     ];
-    
+
 }
 # -eof-

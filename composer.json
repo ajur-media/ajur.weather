@@ -6,12 +6,13 @@
     "authors": [
         {
             "name": "Karel Wintersky",
-            "email": "vim@fontanka.ru"
+            "email": "wombat@fontanka.ru"
         }
     ],
     "require": {
-        "php": "^7.2",
+        "php": "^7.4 | 8.*",
         "ext-json": "*",
+        "ext-pdo": "*",
         "psr/log": "^1.1",
         "ajur-media/openweathermap-data-parser": "^0.9.0"
     },
@@ -23,5 +24,8 @@
     "support": {
         "source": "https://github.com/ajur-media/ajur.weather",
         "issues": "https://github.com/ajur-media/ajur.weather/issues"
+    },
+    "require-dev": {
+        "rector/rector": "^1.2"
     }
 }
