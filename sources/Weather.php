@@ -33,7 +33,7 @@ class Weather implements WeatherInterface, WeatherConstants
     /**
      * @var string[]
      */
-    private static $options = [
+    private static array $options = [
         'units'     =>  'metric',
         'lang'      =>  'ru'
     ];
@@ -48,18 +48,19 @@ class Weather implements WeatherInterface, WeatherConstants
      */
     public static function init(string $api_key = '', array $options = [], LoggerInterface $logger = null)
     {
-        if (!empty($api_key)) {
-            self::$API_KEY = $api_key;
-            self::$owm = new OpenWeatherMap($api_key);
-        }
-
-        self::$options['units'] = $options['units'] ?? 'metric';
-        self::$options['lang'] = $options['lang'] ?? 'ru';
-
         self::$logger
             = $logger instanceof LoggerInterface
             ? $logger
             : new NullLogger();
+
+        if (!empty($api_key)) {
+            self::$API_KEY = $api_key;
+            self::$owm = new OpenWeatherMap($api_key);
+            self::$owm->setLogger(self::$logger);
+        }
+
+        self::$options['units'] = $options['units'] ?? 'metric';
+        self::$options['lang'] = $options['lang'] ?? 'ru';
     }
 
     /**
@@ -76,25 +77,30 @@ class Weather implements WeatherInterface, WeatherConstants
 
         try {
             if (is_null($source_file)) {
+                self::$logger->error("Weather file not defined");
                 throw new RuntimeException("Weather file not defined", self::ERROR_SOURCE_FILE_NOT_DEFINED);
             }
 
             if (!is_readable($source_file)) {
+                self::$logger->error("Weather file `{$source_file}` not found");
                 throw new RuntimeException("Weather file `{$source_file}` not found", self::ERROR_SOURCE_FILE_NOT_READABLE);
             }
 
             $file_content = \file_get_contents($source_file);
-            if ($file_content === FALSE) {
+            if ($file_content === false) {
+                self::$logger->error("Error reading weather file `{$source_file}`");
                 throw new RuntimeException("Error reading weather file `{$source_file}`", self::ERROR_SOURCE_FILE_READING_ERROR);
             }
 
             $file_content_json = \json_decode($file_content, true);
 
-            if (!\is_array($file_content_json)) {
+            if (\is_null($file_content_json) || !is_array($file_content_json)) {
+                self::$logger->error("Weather data can't be parsed", [ $file_content_json ]);
                 throw new RuntimeException("Weather data can't be parsed", self::ERROR_SOURCE_FILE_PARSING_ERROR);
             }
 
             if (!\array_key_exists('data', $file_content_json)) {
+                self::$logger->error("Weather file does not contain DATA section");
                 throw new RuntimeException("Weather file does not contain DATA section", self::ERROR_SOURCE_FILE_HAVE_NO_DATA);
             }
 
@@ -111,6 +117,7 @@ class Weather implements WeatherInterface, WeatherConstants
             // Проверим, есть ли такой идентификатор района вообще в массиве кодов районов.
             // Если нет - кидаем исключение (записываем ошибку), но возвращаем массив со случайной погодой
             if (!\array_key_exists($district_id, self::map_intid_to_owmid[ self::REGION_LO ])) {
+                self::$logger->error("Given district id ({$district_id}) does not exist in MAP_INTID_TO_OWMID set", [ self::map_intid_to_owmid ]);
                 throw new RuntimeException("Given district id ({$district_id}) does not exist in MAP_INTID_TO_OWMID set", self::ERROR_NO_SUCH_DISTRICT_ID);
             }
 
@@ -128,7 +135,6 @@ class Weather implements WeatherInterface, WeatherConstants
 
             // ближайшие регионы
             foreach (self::lo_adjacency_lists[ $district_id ] as $adjacency_district_id ) {
-
                 $adjacency_district_owmid = self::map_intid_to_owmid[ self::REGION_LO ][ $adjacency_district_id ];
 
                 $local_weather[] = self::array_search_callback($current_weather, function ($item) use ($adjacency_district_owmid){
