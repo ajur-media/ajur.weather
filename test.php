@@ -1,6 +1,8 @@
 <?php
 
-require_once '../vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+date_default_timezone_set("Europe/Moscow");
 
 use AJUR\Toolkit\Weather;
 use AJUR\Toolkit\WeatherConstants;

@@ -10,15 +10,15 @@
         }
     ],
     "require": {
-        "php": "^7.4 | 8.*",
+        "php": "^8.2",
         "ext-json": "*",
         "ext-pdo": "*",
-        "psr/log": "^1.1",
-        "ajur-media/openweathermap-data-parser": "^0.99"
+        "psr/log": "*",
+        "ajur-media/openweathermap-data-parser": "^1"
     },
     "autoload": {
         "psr-4": {
-            "AJUR\\Toolkit\\": ["interfaces", "sources"]
+            "AJUR\\Toolkit\\": "sources"
         }
     },
     "support": {

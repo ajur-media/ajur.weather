@@ -58,6 +58,7 @@ interface WeatherConstants
         self::REGION_SPB =>  [
             0   => 536203,              // Условно Санкт-Петербург (на самом деле - центр)
         ],
+
         // регионы ленобласти (внутренний ID на сайте 47news.ru => код региона OWM)
         self::REGION_LO =>  [
             0   =>  536203,             // Санкт-Петербург (центр)
@@ -285,4 +286,5 @@ interface WeatherConstants
     ];
 
 }
-# -eof-
+
+# -eof- #
